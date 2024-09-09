@@ -49,6 +49,6 @@ export async function POST(request, { params }) {
     `,
   });
 
-  const thanksUrl = new URL(`/magic-link-thanks?type=${type}`, request.url);
-  return NextResponse.redirect(thanksUrl, 302);
+  const thanksURL = tenantURL(`/magic-link-thanks?type=${type}`);
+  return NextResponse.redirect(thanksURL, 302);
 }

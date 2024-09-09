@@ -14,9 +14,9 @@ export const Login = ({ formType = "password-login", tenant, tenantName }) => {
   const router = useRouter();
   const getPath = (subPath) => urlPath(subPath ?? "", tenant);
 
-  const isPasswordRecovery = formType === FORM_TYPES.PASSWORD_RECOVERY;
   const isPasswordLogin = formType === FORM_TYPES.PASSWORD_LOGIN;
   const isMagicLinkLogin = formType === FORM_TYPES.MAGIC_LINK;
+  console.log(isPasswordLogin);
 
   const formAction = getPath(
     isPasswordLogin ? `/password-login` : `/magic-link`,

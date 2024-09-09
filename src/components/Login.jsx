@@ -4,30 +4,25 @@ import { clsx } from "clsx";
 import { useRef } from "react";
 import { getSupabaseBrowserClient } from "@/supabase-utils/browser-client";
 import { useRouter } from "next/navigation";
+import { urlPath } from "@/utils/url-helper";
+import { FORM_TYPES } from "@/app/[tenant]/formTypes";
 
-export const Login = ({ isPasswordLogin }) => {
+export const Login = ({ formType = "password-login", tenant, tenantName }) => {
   const emailRef = useRef(null);
   const passwordRef = useRef(null);
   const supabase = getSupabaseBrowserClient();
   const router = useRouter();
+  const getPath = (subPath) => urlPath(subPath ?? "", tenant);
 
-  // const handleLogin = (e) => {
-  //   e.preventDefault();
-  //   if (isPasswordLogin) {
-  //     supabase.auth
-  //       .signInWithPassword({
-  //         email: emailRef.current.value,
-  //         password: passwordRef.current.value,
-  //       })
-  //       .then((result) => {
-  //         if (result.data?.user) {
-  //           router.push("/tickets");
-  //         } else {
-  //           alert("Could not sign in");
-  //         }
-  //       });
-  //   }
-  // };
+  const isPasswordRecovery = formType === FORM_TYPES.PASSWORD_RECOVERY;
+  const isPasswordLogin = formType === FORM_TYPES.PASSWORD_LOGIN;
+  const isMagicLinkLogin = formType === FORM_TYPES.MAGIC_LINK;
+
+  const formAction = getPath(
+    isPasswordLogin ? `/password-login` : `/magic-link`,
+  );
+  const loginBasePath = getPath();
+
   return (
     <>
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
@@ -37,17 +32,16 @@ export const Login = ({ isPasswordLogin }) => {
             src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
             className="mx-auto h-10 w-auto"
           />
+          <h1 className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text mt-5">
+            {tenantName}
+          </h1>
           <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
             Sign in to your account
           </h2>
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form
-            action={isPasswordLogin ? "/password-login" : "magic-link"}
-            method="POST"
-            className="space-y-6"
-          >
+          <form action={formAction} method="POST" className="space-y-6">
             <div>
               <label
                 htmlFor="email"
@@ -102,7 +96,7 @@ export const Login = ({ isPasswordLogin }) => {
             {isPasswordLogin ? (
               <Link
                 href={{
-                  pathname: "/",
+                  pathname: loginBasePath,
                   query: { magicLink: "yes" },
                 }}
                 className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
@@ -112,7 +106,7 @@ export const Login = ({ isPasswordLogin }) => {
             ) : (
               <Link
                 href={{
-                  pathname: "/",
+                  pathname: loginBasePath,
                   query: { magicLink: "no" },
                 }}
                 className="flex w-full justify-center rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"

@@ -1,13 +1,14 @@
 import { getSupabaseAdminClient } from "@/supabase-utils/adminClient";
 import nodemailer from "nodemailer";
 import { NextResponse } from "next/server";
+import { buildUrl } from "@/utils/url-helper";
 
-export async function POST(request) {
+export async function POST(request, { params }) {
   const formData = await request.formData();
   const email = formData.get("email");
   const supabaseAdmin = getSupabaseAdminClient();
   const type = formData.get("type") === "recovery" ? "recovery" : "magiclink";
-
+  const tenantURL = (path) => buildUrl(path, params.tenant, request);
   const { data: linkData, error } = await supabaseAdmin.auth.admin.generateLink(
     {
       email,
@@ -17,10 +18,7 @@ export async function POST(request) {
 
   if (error) {
     console.error(error);
-    return NextResponse.redirect(
-      new URL(`/error?type=${type}`, request.url),
-      302,
-    );
+    return NextResponse.redirect(tenantURL(`/error?type=${type}`), 302);
   }
 
   const { hashed_token } = linkData.properties;

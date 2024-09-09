@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { urlPath } from "@/utils/url-helper";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-export default function TicketList({ tickets }) {
+export default function TicketList({ tickets, tenant }) {
   return (
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="sm:flex sm:items-center">
@@ -74,7 +75,7 @@ export default function TicketList({ tickets }) {
                       )}
                     >
                       <Link
-                        href={`/tickets/details/${ticket.id}`}
+                        href={urlPath(`/tickets/details/${ticket.id}`, tenant)}
                         className="text-sm font-semibold leading-6 text-gray-900"
                       >
                         {ticket.title}

@@ -1,6 +1,6 @@
 import TicketList from "@/components/TicketList";
 
-export default async function TicketsPage({ searchParams }) {
+export default async function TicketsPage({ params }) {
   const dummyTickets = [
     {
       id: 1,
@@ -25,7 +25,7 @@ export default async function TicketsPage({ searchParams }) {
   return (
     <div className="px-4 py-5 sm:p-6">
       <h1 className="text-2xl font-semibold text-gray-900 mb-6">Tickets</h1>
-      <TicketList tickets={dummyTickets} />
+      <TicketList tickets={dummyTickets} tenant={params.tenant} />
     </div>
   );
 }

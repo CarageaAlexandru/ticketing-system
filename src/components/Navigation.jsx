@@ -13,7 +13,7 @@ import TenantName from "@/components/TenantName";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { getSupabaseBrowserClient } from "@/supabase-utils/browser-client";
-import { useEffect } from "react";
+import { urlPath } from "@/utils/url-helper";
 
 const user = {
   name: "Tom Cook",
@@ -26,21 +26,25 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-export default function Navigation({ children }) {
+export default function Navigation({ children, tenant }) {
   const router = useRouter();
   const supabase = getSupabaseBrowserClient();
   const pathname = usePathname();
   const navigation = [
-    { name: "Tickets", href: "/tickets", current: pathname === "/tickets" },
+    {
+      name: "Tickets",
+      href: urlPath("/tickets", tenant),
+      current: pathname === urlPath("/tickets", tenant),
+    },
     {
       name: "Create new ticket",
-      href: "/tickets/new",
-      current: pathname === "/tickets/new",
+      href: urlPath("/tickets/new", tenant),
+      current: pathname === urlPath("/tickets/new", tenant),
     },
     {
       name: "User List",
-      href: "/tickets/users",
-      current: pathname === "/tickets/users",
+      href: urlPath("/tickets/users", tenant),
+      current: pathname === urlPath("/tickets/users", tenant),
     },
   ];
 
@@ -49,7 +53,7 @@ export default function Navigation({ children }) {
     { name: "Settings", href: "#" },
     {
       name: "Sign out",
-      href: "/logout",
+      href: urlPath("/logout", tenant),
     },
   ];
 
@@ -212,7 +216,7 @@ export default function Navigation({ children }) {
           </Disclosure>
           <header className="py-10">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <TenantName tenantName="Soho House" />
+              <TenantName tenant={tenant} />
             </div>
           </header>
         </div>

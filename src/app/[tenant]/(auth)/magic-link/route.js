@@ -23,9 +23,8 @@ export async function POST(request, { params }) {
 
   const { hashed_token } = linkData.properties;
 
-  const constructedLink = new URL(
+  const constructedLink = tenantURL(
     `/verify?hashed_token=${hashed_token}&type=${type}`,
-    request.url,
   );
 
   const transporter = nodemailer.createTransport({

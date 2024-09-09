@@ -2,20 +2,32 @@
 import Link from "next/link";
 import { clsx } from "clsx";
 import { useRef } from "react";
+import { getSupabaseBrowserClient } from "@/supabase-utils/browser-client";
+import { useRouter } from "next/navigation";
 
 export const Login = ({ isPasswordLogin }) => {
   const emailRef = useRef(null);
   const passwordRef = useRef(null);
+  const supabase = getSupabaseBrowserClient();
+  const router = useRouter();
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (isPasswordLogin) {
-      alert("User wants to login with password");
-    } else {
-      alert("User wants to login with magic link");
-    }
-  };
-
+  // const handleLogin = (e) => {
+  //   e.preventDefault();
+  //   if (isPasswordLogin) {
+  //     supabase.auth
+  //       .signInWithPassword({
+  //         email: emailRef.current.value,
+  //         password: passwordRef.current.value,
+  //       })
+  //       .then((result) => {
+  //         if (result.data?.user) {
+  //           router.push("/tickets");
+  //         } else {
+  //           alert("Could not sign in");
+  //         }
+  //       });
+  //   }
+  // };
   return (
     <>
       <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
@@ -31,7 +43,11 @@ export const Login = ({ isPasswordLogin }) => {
         </div>
 
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form onSubmit={handleLogin} method="POST" className="space-y-6">
+          <form
+            action={isPasswordLogin ? "/password-login" : "magic-link"}
+            method="POST"
+            className="space-y-6"
+          >
             <div>
               <label
                 htmlFor="email"

@@ -11,7 +11,9 @@ import {
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import TenantName from "@/components/TenantName";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { getSupabaseBrowserClient } from "@/supabase-utils/browser-client";
+import { useEffect } from "react";
 
 const user = {
   name: "Tom Cook",
@@ -20,17 +22,13 @@ const user = {
     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
 };
 
-const userNavigation = [
-  { name: "Your Profile", href: "#" },
-  { name: "Settings", href: "#" },
-  { name: "Sign out", href: "#" },
-];
-
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
 export default function Navigation({ children }) {
+  const router = useRouter();
+  const supabase = getSupabaseBrowserClient();
   const pathname = usePathname();
   const navigation = [
     { name: "Tickets", href: "/tickets", current: pathname === "/tickets" },
@@ -45,6 +43,16 @@ export default function Navigation({ children }) {
       current: pathname === "/tickets/users",
     },
   ];
+
+  const userNavigation = [
+    { name: "Your Profile", href: "/profile" },
+    { name: "Settings", href: "#" },
+    {
+      name: "Sign out",
+      href: "/logout",
+    },
+  ];
+
   return (
     <>
       <div className="min-h-full">
@@ -64,7 +72,7 @@ export default function Navigation({ children }) {
                     <div className="hidden md:block">
                       <div className="ml-10 flex items-baseline space-x-4">
                         {navigation.map((item) => (
-                          <a
+                          <Link
                             key={item.name}
                             href={item.href}
                             aria-current={item.current ? "page" : undefined}
@@ -76,7 +84,7 @@ export default function Navigation({ children }) {
                             )}
                           >
                             {item.name}
-                          </a>
+                          </Link>
                         ))}
                       </div>
                     </div>
@@ -111,12 +119,12 @@ export default function Navigation({ children }) {
                         >
                           {userNavigation.map((item) => (
                             <MenuItem key={item.name}>
-                              <a
+                              <Link
                                 href={item.href}
                                 className="block px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
                               >
                                 {item.name}
-                              </a>
+                              </Link>
                             </MenuItem>
                           ))}
                         </MenuItems>
@@ -191,7 +199,7 @@ export default function Navigation({ children }) {
                   {userNavigation.map((item) => (
                     <DisclosureButton
                       key={item.name}
-                      as="a"
+                      as={Link}
                       href={item.href}
                       className="block rounded-md px-3 py-2 text-base font-medium text-gray-400 hover:bg-gray-700 hover:text-white"
                     >

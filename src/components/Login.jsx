@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { clsx } from "clsx";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { getSupabaseBrowserClient } from "@/supabase-utils/browser-client";
 import { useRouter } from "next/navigation";
 import { urlPath } from "@/utils/url-helper";
@@ -16,12 +16,27 @@ export const Login = ({ formType = "password-login", tenant, tenantName }) => {
 
   const isPasswordLogin = formType === FORM_TYPES.PASSWORD_LOGIN;
   const isMagicLinkLogin = formType === FORM_TYPES.MAGIC_LINK;
-  console.log(isPasswordLogin);
 
   const formAction = getPath(
     isPasswordLogin ? `/password-login` : `/magic-link`,
   );
-  const loginBasePath = getPath();
+  const loginBasePath = getPath("/");
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN") {
+        if (session.user.app_metadata?.tenants.includes(tenant)) {
+          router.push(`/${tenant}/tickets`);
+        } else {
+          supabase.auth.signOut();
+          alert("Could not sign in, tenant does not match.");
+        }
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <>
@@ -130,6 +145,12 @@ export const Login = ({ formType = "password-login", tenant, tenantName }) => {
               >
                 Sign in with {isPasswordLogin ? "Password" : "Magic Link"}
               </button>
+              <Link
+                href={urlPath("/register", tenant)}
+                className="flex w-full justify-center rounded-md bg-white my-2 px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+              >
+                Create account
+              </Link>
             </div>
           </form>
         </div>

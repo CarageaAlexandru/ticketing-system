@@ -1,8 +1,8 @@
-export default function TenantName(props) {
+export default function TenantName({ tenant }) {
   return (
     <div>
       <h1 className="text-xl font-bold tracking-tight text-white">
-        Ticket System {props.tenant}
+        Ticket System {tenant}
       </h1>
     </div>
   );

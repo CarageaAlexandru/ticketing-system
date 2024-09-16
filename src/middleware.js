@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSupabaseReqResClient } from "./supabase-utils/reqResClient";
+import { buildUrl } from "@/utils/url-helper";
 
 export async function middleware(req) {
   const { supabase, response } = getSupabaseReqResClient({ request: req });
@@ -9,18 +10,20 @@ export async function middleware(req) {
     return NextResponse.rewrite(new URL("/not-found", req.url));
   }
   const applicationPath = "/" + restOfPath.join("/");
-  console.log(tenant);
   const {
     data: { user },
     error,
   } = await supabase.auth.getUser();
+
   if (applicationPath.startsWith("/tickets")) {
     if (!user) {
       return NextResponse.redirect(new URL(`/${tenant}/`, req.url));
+    } else if (!user.app_metadata?.tenants.includes(tenant)) {
+      return NextResponse.rewrite(new URL("/not-found", req.url));
     }
   } else if (requestedPath === "/") {
     if (user) {
-      return NextResponse.redirect(new URL(`/${tenant}/tickets`, req.url));
+      return NextResponse.redirect(buildUrl("/tickets", tenant, req));
     }
   }
 

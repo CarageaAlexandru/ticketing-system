@@ -26,7 +26,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-export default function Navigation({ children, tenant }) {
+export default function Navigation({ children, tenant, tenantID }) {
   const router = useRouter();
   const supabase = getSupabaseBrowserClient();
   const pathname = usePathname();
@@ -53,10 +53,9 @@ export default function Navigation({ children, tenant }) {
     { name: "Settings", href: "#" },
     {
       name: "Sign out",
-      href: urlPath("/logout", tenant),
+      href: urlPath("/logout", tenantID),
     },
   ];
-
   return (
     <>
       <div className="min-h-full">

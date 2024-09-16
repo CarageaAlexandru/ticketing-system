@@ -12,7 +12,12 @@ export async function POST(request, { params }) {
     email,
     password,
   });
-  if (error || !userData) {
+  if (
+    error ||
+    !userData ||
+    !userData.user.app_metadata?.tenants.includes(params.tenant)
+  ) {
+    await supabase.auth.signOut();
     return NextResponse.redirect(tenantURL("/error?type=login-failed"), {
       status: 302,
     });

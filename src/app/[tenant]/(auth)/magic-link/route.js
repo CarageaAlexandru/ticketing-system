@@ -16,7 +16,7 @@ export async function POST(request, { params }) {
     },
   );
 
-  if (error) {
+  if (error || !linkData.user.app_metadata?.tenants.includes(params.tenant)) {
     console.error(error);
     return NextResponse.redirect(tenantURL(`/error?type=${type}`), 302);
   }

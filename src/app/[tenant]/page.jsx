@@ -4,13 +4,16 @@ import { notFound } from "next/navigation";
 import { FORM_TYPES } from "@/app/[tenant]/formTypes";
 
 export default async function LoginPage({ searchParams, params }) {
+  const tenant = params.tenant;
   const supabaseAdmin = getSupabaseAdminClient();
   const { data, error } = await supabaseAdmin
     .from("tenants")
     .select("*")
-    .eq("id", params.tenant)
+    .eq("id", tenant)
     .single();
+
   if (error) {
+    console.log(`@error (${tenant})`, error);
     notFound();
   }
   const { name: tenantName } = data;
@@ -21,11 +24,7 @@ export default async function LoginPage({ searchParams, params }) {
   }
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <Login
-        formType={formType}
-        tenant={params.tenant}
-        tenantName={tenantName}
-      />
+      <Login formType={formType} tenant={tenant} tenantName={tenantName} />
     </main>
   );
 }

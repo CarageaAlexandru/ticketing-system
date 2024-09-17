@@ -9,13 +9,18 @@ import {
 } from "@headlessui/react";
 import { CheckIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import { urlPath } from "@/utils/url-helper";
 
-export default function MagicLinkThanks({ params, tenant }) {
+export default function SuccessMessage({
+  tenant,
+  title,
+  message,
+  buttonText,
+  buttonHref,
+}) {
   const [open, setOpen] = useState(true);
 
   return (
-    <Dialog open={open} onClose={setOpen} className="relative z-10 ">
+    <Dialog open={open} onClose={setOpen} className="relative z-10">
       <DialogBackdrop
         transition
         className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity data-[closed]:opacity-0 data-[enter]:duration-300 data-[leave]:duration-200 data-[enter]:ease-out data-[leave]:ease-in"
@@ -36,25 +41,29 @@ export default function MagicLinkThanks({ params, tenant }) {
               </div>
               <div className="mt-3 text-center sm:mt-5">
                 <DialogTitle
+                  as="h1"
+                  className="text-3xl font-bold mb-6 text-center bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text mt-5"
+                >
+                  {tenant}
+                </DialogTitle>
+                <DialogTitle
                   as="h3"
                   className="text-base font-semibold leading-6 text-gray-900"
                 >
-                  Magic on its way!
+                  {title}
                 </DialogTitle>
                 <div className="mt-2">
-                  <p className="text-sm text-gray-500">
-                    Thanks! You should get a link to login in a few seconds.
-                  </p>
+                  <p className="text-sm text-gray-500">{message}</p>
                 </div>
               </div>
             </div>
             <div className="mt-5 sm:mt-6">
               <Link
-                href={urlPath("/", tenant)}
+                href={buttonHref}
                 onClick={() => setOpen(false)}
                 className="inline-flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
-                Go back to homepage.
+                {buttonText}
               </Link>
             </div>
           </DialogPanel>

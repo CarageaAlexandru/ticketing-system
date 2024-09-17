@@ -4,7 +4,6 @@ import { ErrorMessage } from "@/components/ErrorMessage";
 import { urlPath } from "@/utils/url-helper";
 
 export default function ErrorPage({ searchParams, params }) {
-  console.log(params, "is this ?");
   const { type } = searchParams;
   const errorMessages = {
     "login-failed": [
@@ -17,8 +16,17 @@ export default function ErrorPage({ searchParams, params }) {
       "Could not send a magic link - the user must be registered first.",
     ],
     invalid_magiclink: [
-      "The magic link was invalid. Maybe it expired? Please request \n" +
-        "    a new one.",
+      "The magic link was invalid. Maybe it expired? Please request a new one.",
+    ],
+    register_mail_mismatch: [
+      `You are not legitimated to register an account with: ${searchParams.email}
+      `,
+    ],
+    register_mail_exists: [
+      `There is already an account registered with: ${searchParams.email}`,
+    ],
+    register_unknown: [
+      "Sorry but an unknown error occurred when trying to create an account.",
     ],
   };
   const getErrorContent = () => {

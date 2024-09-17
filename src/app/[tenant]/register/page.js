@@ -13,8 +13,6 @@ export default async function Registration({ params }) {
     .single();
 
   if (error) notFound();
-  const test = urlPath(`/register`, tenant);
-  console.log(test);
 
   const { name: tenantName } = data;
 
@@ -37,8 +35,8 @@ export default async function Registration({ params }) {
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-[480px]">
         <div className="bg-white px-6 py-12 shadow sm:rounded-lg sm:px-12">
           <form
-            action={urlPath("/register", tenant)}
             method="POST"
+            action={urlPath("/signup", tenant)}
             className="space-y-6"
           >
             <div>
@@ -46,7 +44,7 @@ export default async function Registration({ params }) {
                 htmlFor="name"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
-                Email your name
+                Enter your name
               </label>
               <div className="mt-2">
                 <input

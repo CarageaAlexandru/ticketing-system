@@ -33,18 +33,18 @@ export default function Navigation({ children, tenant, tenantID }) {
   const navigation = [
     {
       name: "Tickets",
-      href: urlPath("/tickets", tenant),
-      current: pathname === urlPath("/tickets", tenant),
+      href: urlPath("/tickets", tenantID),
+      current: pathname === urlPath("/tickets", tenantID),
     },
     {
       name: "Create new ticket",
-      href: urlPath("/tickets/new", tenant),
-      current: pathname === urlPath("/tickets/new", tenant),
+      href: urlPath("/tickets/new", tenantID),
+      current: pathname === urlPath("/tickets/new", tenantID),
     },
     {
       name: "User List",
-      href: urlPath("/tickets/users", tenant),
-      current: pathname === urlPath("/tickets/users", tenant),
+      href: urlPath("/tickets/users", tenantID),
+      current: pathname === urlPath("/tickets/users", tenantID),
     },
   ];
 

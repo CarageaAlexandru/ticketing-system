@@ -1,53 +1,22 @@
-import { getSupabaseAdminClient } from "@/supabase-utils/adminClient";
-import nodemailer from "nodemailer";
 import { NextResponse } from "next/server";
 import { buildUrl } from "@/utils/url-helper";
+import { sendOTPLink } from "@/utils/sendOTPLink";
 
 export async function POST(request, { params }) {
+  const { tenant } = params;
   const formData = await request.formData();
   const email = formData.get("email");
-  const supabaseAdmin = getSupabaseAdminClient();
   const type = formData.get("type") === "recovery" ? "recovery" : "magiclink";
-  const tenantURL = (path) => buildUrl(path, params.tenant, request);
-  const { data: linkData, error } = await supabaseAdmin.auth.admin.generateLink(
-    {
-      email,
-      type,
-    },
+  const errorURL = buildUrl(`/error?type=${type}`, tenant, request);
+  const thanksUrl = buildUrl(
+    `/magic-link-thanks?type=${type}`,
+    params.tenant,
+    request,
   );
-
-  if (error || !linkData.user.app_metadata?.tenants.includes(params.tenant)) {
-    console.error(error);
-    return NextResponse.redirect(tenantURL(`/error?type=${type}`), 302);
+  const otpSuccess = await sendOTPLink(email, type, tenant, request);
+  if (!otpSuccess) {
+    return NextResponse.redirect(errorURL, 302);
+  } else {
+    return NextResponse.redirect(thanksUrl, 302);
   }
-
-  const { hashed_token } = linkData.properties;
-
-  const constructedLink = tenantURL(
-    `/verify?hashed_token=${hashed_token}&type=${type}`,
-  );
-
-  const transporter = nodemailer.createTransport({
-    host: "localhost",
-    port: 54325,
-  });
-
-  const initialSentence =
-    type === "recovery"
-      ? "Hi there, you requested a password change!"
-      : "Hi there, this is a custom magic link email!";
-  const secondSentenceEnding = type === "recovery" ? "change it" : "log in";
-
-  await transporter.sendMail({
-    from: "Your Company <your@mail.whatever>",
-    to: email,
-    subject: "Magic Link",
-    html: `
-    <h1>${initialSentence}</h1>
-    <p>Click <a href="${constructedLink.toString()}">here</a> to ${secondSentenceEnding}.</p>
-    `,
-  });
-
-  const thanksURL = tenantURL(`/magic-link-thanks?type=${type}`);
-  return NextResponse.redirect(thanksURL, 302);
 }

@@ -16,7 +16,7 @@ export default async function LoginPage({ searchParams, params }) {
     console.log(`@error (${tenant})`, error);
     notFound();
   }
-  const { name: tenantName } = data;
+  const { name: tenantName, domain: tenantDomain, id: tenantID } = data;
   const wantsMagicLink = searchParams.magicLink === "yes";
   let formType = FORM_TYPES.PASSWORD_LOGIN;
   if (wantsMagicLink) {
@@ -24,7 +24,13 @@ export default async function LoginPage({ searchParams, params }) {
   }
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <Login formType={formType} tenant={tenant} tenantName={tenantName} />
+      <Login
+        formType={formType}
+        tenant={tenant}
+        tenantName={tenantName}
+        tenantDomain={tenantDomain}
+        tenantID={tenantID}
+      />
     </main>
   );
 }

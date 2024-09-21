@@ -62,5 +62,6 @@ export async function GET(request, { params }) {
       tenants: [tenant, ...(user.app_metadata.tenants ?? [])],
     },
   });
-  return NextResponse.json({ session: sessionData.session });
+  // return NextResponse.json({ session: sessionData.session });
+  return NextResponse.redirect(buildUrl("/", params.tenant, request));
 }

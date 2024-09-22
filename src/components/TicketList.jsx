@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { urlPath } from "@/utils/url-helper";
+import { TICKET_STATUS } from "@/utils/constants";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-export default function TicketList({ tickets, tenant }) {
+export default async function TicketList({ tickets, tenant }) {
   return (
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="sm:flex sm:items-center">
@@ -89,7 +90,7 @@ export default function TicketList({ tickets, tenant }) {
                         "hidden whitespace-nowrap px-3 py-4 text-sm text-gray-500 lg:table-cell",
                       )}
                     >
-                      {ticket.status}
+                      {TICKET_STATUS[ticket.status]}
                     </td>
                   </tr>
                 ))}

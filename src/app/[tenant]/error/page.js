@@ -28,6 +28,9 @@ export default function ErrorPage({ searchParams, params }) {
     register_unknown: [
       "Sorry but an unknown error occurred when trying to create an account.",
     ],
+    page_out_of_range: [
+      "The requested page does not exist. Please go back to the first page and try again.",
+    ],
   };
   const getErrorContent = () => {
     if (errorMessages[type]) {

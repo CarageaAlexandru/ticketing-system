@@ -1,11 +1,59 @@
 "use client";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import Spinner from "@/components/Spinner";
+import { getSupabaseBrowserClient } from "@/supabase-utils/browser-client";
+import { urlPath } from "@/utils/url-helper";
+import { useRouter } from "next/navigation";
+import { delay } from "@/utils/constants";
 
-export default function CreateTicket() {
+export default function CreateTicket({ params }) {
+  const { tenant } = params;
+  const router = useRouter();
+  const supabase = getSupabaseBrowserClient();
   const ticketTitleRef = useRef(null);
   const ticketDescriptionRef = useRef(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    router.prefetch(urlPath(`/tickets/details/[id]`));
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const title = ticketTitleRef.current.value;
+    const description = ticketDescriptionRef.current.value;
+    // we have database validation as well, title check < 4 - keep in mind
+    if (title.trim().length > 4 && description.trim().length > 20) {
+      setIsLoading(true);
+      await delay(2000);
+      // we have created a trigger in order to populate the mandatory created_by field. Database -> triggers tr_
+      supabase
+        .from("tickets")
+        .insert({
+          title,
+          description,
+          tenant,
+        })
+        .select()
+        .single()
+        .then(({ error, data }) => {
+          if (error) {
+            setIsLoading(false);
+            alert("There was an error , could not create the ticket.");
+            console.error(error);
+          } else {
+            router.push(urlPath(`/tickets/details/${data.id}`, tenant));
+          }
+        });
+
+      setIsLoading(false);
+    } else {
+      alert("A title must have at least 5 char and a description at least 20.");
+    }
+  };
+
   return (
-    <form action="">
+    <form action="" onSubmit={handleSubmit}>
       <div className="space-y-12">
         <div className="border-b border-gray-900/10 pb-12">
           <h2 className="text-base font-semibold leading-7 text-gray-900">
@@ -23,6 +71,7 @@ export default function CreateTicket() {
             </label>
             <div className="mt-2">
               <input
+                disabled={isLoading}
                 ref={ticketTitleRef}
                 id="title"
                 name="title"
@@ -43,6 +92,7 @@ export default function CreateTicket() {
           </label>
           <div className="mt-2">
             <textarea
+              disabled={isLoading}
               ref={ticketDescriptionRef}
               id="description"
               name="description"
@@ -57,16 +107,18 @@ export default function CreateTicket() {
         </div>
         <div className="mt-6 flex items-center justify-end gap-x-6">
           <button
+            disabled={isLoading}
             type="button"
             className="text-sm font-semibold leading-6 text-gray-900"
           >
             Cancel
           </button>
           <button
+            disabled={isLoading}
             type="submit"
-            className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            className="flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
           >
-            Save
+            {isLoading ? <Spinner /> : "Save"}
           </button>
         </div>
       </div>

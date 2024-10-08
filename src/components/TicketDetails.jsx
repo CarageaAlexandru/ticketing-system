@@ -1,22 +1,27 @@
-import { CalendarDaysIcon, UserCircleIcon } from "@heroicons/react/20/solid";
-import { getSupabaseCookiesUtilClient } from "@/supabase-utils/cookiesUtilCleint";
-import { notFound } from "next/navigation";
+"use client";
+import {
+  CalendarDaysIcon,
+  TrashIcon,
+  UserCircleIcon,
+} from "@heroicons/react/20/solid";
 import { TICKET_STATUS } from "@/utils/constants";
+import { getSupabaseBrowserClient } from "@/supabase-utils/browser-client";
+import { urlPath } from "@/utils/url-helper";
+import { useRouter } from "next/navigation";
 
-export default async function TicketDetails({ params }) {
-  const supabase = getSupabaseCookiesUtilClient();
-  const id = Number(params.id);
-  const { data: ticket, error } = await supabase
-    .from("tickets")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-  if (error) return notFound();
-  // we have created a trigger for author name - keep in mind
-  const { title, description, status, author_name, created_at } = ticket;
-  const dateString = new Date(created_at).toLocaleString("en-UK");
-
+export default function TicketDetails({
+  params,
+  tenant,
+  id,
+  status,
+  title,
+  description,
+  author_name,
+  dateString,
+  isAuthor,
+}) {
+  const supabase = getSupabaseBrowserClient();
+  const router = useRouter();
   return (
     <div className="lg:col-start-3 lg:row-end-1">
       <h2 className="sr-only">Summary</h2>
@@ -29,11 +34,28 @@ export default async function TicketDetails({ params }) {
               </h3>
             </dt>
           </div>
-          <div className="flex-none self-end px-6 pt-4">
+          <div className="flex self-end px-6 pt-4">
             <dt className="sr-only">Status</dt>
             <dd className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
               {TICKET_STATUS[status]}
             </dd>
+            {isAuthor && (
+              <button
+                onClick={() => {
+                  supabase
+                    .from("tickets")
+                    .delete()
+                    .eq("id", id)
+                    .then(() => {
+                      router.push(urlPath("/tickets", tenant));
+                    });
+                }}
+                type="button"
+                className="rounded-full ml-2  bg-red-600 p-2 text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+              >
+                <TrashIcon aria-hidden="true" className="h-4 w-4" />
+              </button>
+            )}
           </div>
           <div className="mt-6 flex w-full flex-none gap-x-4 border-t border-gray-900/5 px-6 pt-6">
             <dt className="flex-none">

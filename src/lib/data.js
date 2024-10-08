@@ -31,6 +31,8 @@ export async function fetchTickets(tenant, page, itemsPerPage) {
       .from("tickets")
       .select("*", { count: "exact" })
       .eq("tenant", tenant)
+      .order("status", { ascending: true })
+      .order("created_at", { ascending: false })
       .range(start, end);
     // await delay(2000);
     if (error) {

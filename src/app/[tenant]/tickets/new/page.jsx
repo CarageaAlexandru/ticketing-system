@@ -5,6 +5,7 @@ import { getSupabaseBrowserClient } from "@/supabase-utils/browser-client";
 import { urlPath } from "@/utils/url-helper";
 import { useRouter } from "next/navigation";
 import { delay } from "@/utils/constants";
+import { AssigneeSelect } from "@/components/AssigneeSelect";
 
 export default function CreateTicket({ params }) {
   const { tenant } = params;
@@ -13,7 +14,7 @@ export default function CreateTicket({ params }) {
   const ticketTitleRef = useRef(null);
   const ticketDescriptionRef = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
-
+  const [assignee, setAssignee] = useState(null);
   useEffect(() => {
     router.prefetch(urlPath(`/tickets/details/[id]`));
   }, []);
@@ -33,6 +34,7 @@ export default function CreateTicket({ params }) {
           title,
           description,
           tenant,
+          assignee,
         })
         .select()
         .single()
@@ -60,9 +62,8 @@ export default function CreateTicket({ params }) {
             Create a new ticket
           </h2>
         </div>
-
         <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-          <div className="col-span-full">
+          <div className="col-span-3">
             <label
               htmlFor="title"
               className="block text-sm font-medium leading-6 text-gray-900"
@@ -78,6 +79,15 @@ export default function CreateTicket({ params }) {
                 type="text"
                 placeholder="Enter title"
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              />
+            </div>
+          </div>
+          <div className="mt-8 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+            <div className="col-span-3">
+              <AssigneeSelect
+                tenant={tenant}
+                initialValue={assignee}
+                onValueChanged={(v) => setAssignee(v)}
               />
             </div>
           </div>

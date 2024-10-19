@@ -1,6 +1,8 @@
 import UserList from "@/components/UserList";
 
-export default async function UsersPage({ searchParams }) {
+export default async function UsersPage({ params }) {
+  const tenant = params.tenant;
+  console.log(tenant);
   const users = [
     {
       id: 1,
@@ -30,7 +32,7 @@ export default async function UsersPage({ searchParams }) {
 
   return (
     <div className="px-4 py-5 sm:p-6">
-      <UserList people={users} />
+      <UserList users={users} tenant={tenant} />
     </div>
   );
 }

@@ -1,4 +1,12 @@
-export default function UserList({ people }) {
+import { getSupabaseCookiesUtilClient } from "@/supabase-utils/cookiesUtilCleint";
+
+export default async function UserList({ tenant }) {
+  const supabase = getSupabaseCookiesUtilClient();
+  // we have defined access to the data inside the function in postgresql
+  let { data: users, error } = await supabase.rpc("get_tenant_userlist", {
+    tenant_id: tenant,
+  });
+
   return (
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="sm:flex sm:items-center">
@@ -49,19 +57,19 @@ export default function UserList({ people }) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {people.map((person) => (
+                {users.map((person) => (
                   <tr key={person.id}>
                     <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
                       <span
                         className={`
-      ${person.isAvailable ? "text-gray-900" : "text-red-500 line-through"}
+      ${person.is_available ? "text-gray-900" : "text-red-500 line-through"}
     `}
                       >
-                        {person.name}
+                        {person.full_name}
                       </span>
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {person.job}
+                      {person.job_title}
                     </td>
                     {/*<td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">*/}
                     {/*  <a*/}

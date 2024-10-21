@@ -8,11 +8,11 @@ export default async function TicketDetailsPage({ params }) {
   const id = params.id;
   const { data: ticket, error } = await supabase
     .from("tickets")
-    .select("*")
+    .select("*, comments(*)", )
+    .order("created_at", {ascending: true, foreignTable:"comments"})
     .eq("id", id)
     .single();
   if (error) return notFound();
-
   const supabase_user_id = (await supabase.auth.getUser()).data.user.id;
   const { data: serviceUser } = await supabase
     .from("service_users")
@@ -25,7 +25,7 @@ export default async function TicketDetailsPage({ params }) {
     created_at,
     title,
     description,
-    created_by,
+  comments,
     status,
     author_name,
     assignee,
@@ -46,7 +46,7 @@ export default async function TicketDetailsPage({ params }) {
         isAuthor={isAuthor}
         assignee={assignee}
       />
-      <TicketComments />
+      <TicketComments ticket={ticket} initialComments={comments}/>
     </article>
   );
 }

@@ -1,21 +1,49 @@
 "use client";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { getSupabaseBrowserClient } from "@/supabase-utils/browser-client";
 
-const comments = [
-  {
-    author: "Dave",
-    date: "2027-01-01",
-    content: "This is a comment from Dave",
-  },
-  {
-    author: "Alice",
-    date: "2027-01-02",
-    content: "This is a comment from Alice",
-  },
-];
 
-export function TicketComments() {
+export function TicketComments({ticket, initialComments}) {
   const commentRef = useRef(null);
+  const supabase = getSupabaseBrowserClient()
+  const [comments, setComments] = useState(initialComments || []);
+  const { id } = ticket
+
+  useEffect(() => {
+    const listener = (payload) => {
+      const eventType = payload.eventType
+      console.log("Realtime event received!", payload);
+      if (eventType === "INSERT") {
+        setComments((prevComments) => [...prevComments, payload.new]);
+      } else if (eventType === "DELETE") {
+      setComments((prevComments) =>
+        prevComments
+          .filter((comment) => comment.id !== payload.old.id)
+      );
+    } else if (eventType === "UPDATE") {
+      setComments((prevComments) =>
+        prevComments.map((comment) =>
+          comment.id === payload.new.id ? payload.new : comment
+        )
+      );
+    }
+    };
+    const subscription = supabase
+      .channel("my-channel")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "comments",
+          filter: `ticket=eq.${id}`
+        },
+        listener,
+      )
+      .subscribe();
+    return () => subscription.unsubscribe();
+  }, []);
+
   return (
     <section>
       <h4>Comments</h4>
@@ -23,7 +51,20 @@ export function TicketComments() {
         className="mt-6"
         onSubmit={(event) => {
           event.preventDefault();
-          alert("TODO: Add comment");
+          const comment_text = commentRef.current.value.trim();
+          if (!comment_text) return alert("Please enter a comment");
+          commentRef.disabled = true;
+          supabase
+            .from("comments")
+            .insert({
+              // we need to reference to ticket id
+              ticket: id,
+              comment_text,
+            })
+            .then(() => {
+              commentRef.current.value = "";
+              commentRef.disabled = false;
+            });
         }}
       >
         <div>
@@ -51,17 +92,17 @@ export function TicketComments() {
       <section>
         <ul role="list" className="divide-y divide-gray-200">
           {comments.map((comment) => (
-            <li key={comment.author} className="py-4">
-              <article key={comment.date}>
-                <strong>{comment.author} </strong>
-                <time>{comment.date}</time>
-                <p>{comment.content}</p>
+            <li key={comment.id} className="py-4">
+              <article key={comment.created_at}>
+                <strong>{comment.author_name} </strong>
+                <time>at {new Date(comment.created_at).toLocaleString("en-US")}</time>
+                <p>{comment.comment_text}</p>
               </article>
             </li>
           ))}
         </ul>
       </section>
-      <section>We have {comments.length} comments.</section>
+      <section>We have {initialComments.length} comments.</section>
     </section>
   );
 }

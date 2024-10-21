@@ -52,7 +52,7 @@ ALTER FUNCTION "public"."set_created_by_value"() OWNER TO "postgres";
 CREATE OR REPLACE FUNCTION "public"."set_ticket_author_name"() RETURNS "trigger"
     LANGUAGE "plpgsql"
     AS $$BEGIN
-  NEW.author_name = (SELECT full_name FROM service_users WHERE 
+  NEW.author_name = (SELECT full_name FROM service_users WHERE
     supabase_user = auth.uid());
   RETURN NEW;
 END;$$;
